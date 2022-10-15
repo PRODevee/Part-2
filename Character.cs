@@ -21,6 +21,7 @@ namespace RogueLike_2._0
         protected int hp;
         protected int maxHp;
         protected int damage;
+        protected int goldPurse = 0;
         //Vision array
         protected Tile[] vision = new Tile[4];
 
@@ -48,6 +49,12 @@ namespace RogueLike_2._0
             set { damage = value; }
         }
 
+        public int GoldPurse
+        {
+            get { return goldPurse; }
+            set { goldPurse = value; }
+        }
+
         public Movement movement
         {
             get; set;
@@ -64,6 +71,14 @@ namespace RogueLike_2._0
             if (target.hp < 0)
             {
                 target.hp = 0;
+            }
+        }
+
+        public void Pickup(Item i)
+        {
+            if (this.x == i.X && this.y == i.Y)
+            {
+                goldPurse += 1;
             }
         }
 
@@ -114,6 +129,10 @@ namespace RogueLike_2._0
                     break;
                 case Movement.Left:
                     x--;
+                    break;
+                case Movement.No_movement:
+                    x = x;
+                    y = y;
                     break;
             }
         }

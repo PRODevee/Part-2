@@ -11,13 +11,11 @@ namespace RogueLike_2._0
     {
         private Map map;
 
-        private Form1 form = new Form1();
+        private Random ran;
 
         private Hero hero = new Hero(9, 8, 10);
 
         private Enemy enemy;
-
-        private Character character;
         //getter and accessors for map
 
         public string Display
@@ -27,11 +25,11 @@ namespace RogueLike_2._0
         //constructors of GameEngine
         public GameEngine()
         {
-            map = new Map(10, 20, 15, 25, 4);
+            map = new Map(10, 20, 15, 25, 4, 5);
         }
 
         public bool MovePlayer(Movement direction)
-        {//The characters movements accros the map
+        {//The characters movements across the map
             if (direction == Movement.No_movement)
             {
                 return false;
@@ -43,16 +41,23 @@ namespace RogueLike_2._0
                 return false;
             }
 
+
             map.Hero.Move(validMove);
             map.UpdateMap();
             map.UpdateVision();
+
+            if (hero is Gold)
+            {
+                map.PickupItem();
+            }
 
             return true;
         }
 
         public string Herostats()
         {//Displays Hero's stats
-            return "Hero :" + hero.Hp + "/" + hero.MaxHp + " HP";
+            return "Hero :" + hero.Hp + "/" + hero.MaxHp + "HP" +
+                " \n Gold Purse: " + hero.GoldPurse;
         }
 
         public string PlayerAttack(Movement direction)
@@ -71,6 +76,63 @@ namespace RogueLike_2._0
             }
 
             return "Attack failed, no enemy in this direction";
+        }
+
+        public void EnemyAttacks()
+        {
+            Movement directionAttack = MoveEnemies();
+            for (int i = 0; i < map.Enemies; i++)
+            {
+                
+            }
+        }
+
+        public Movement MoveEnemies()
+        {
+            int ran_num = ran.Next(4);
+            Movement validMove = enemy.ReturnMove((Movement)ran_num);
+
+            for (int i = 0; i < map.Enemies; i++)
+            {
+                if (validMove == Movement.No_movement)
+                {
+                    enemy.Move(validMove);
+                    map.UpdateMap();
+                    map.UpdateVision();
+                    return Movement.No_movement;
+                }
+                else if (validMove == Movement.Up)
+                {
+                    enemy.Move(validMove);
+                    map.UpdateMap();
+                    map.UpdateVision();
+                    return Movement.Up;
+                }
+                else if (validMove == Movement.Left)
+                {
+                    enemy.Move(validMove);
+                    map.UpdateMap();
+                    map.UpdateVision();
+                    return Movement.Left;
+                }
+                else if (validMove == Movement.Right)
+                {
+                    enemy.Move(validMove);
+                    map.UpdateMap();
+                    map.UpdateVision();
+                    return Movement.Right;
+                }
+                else
+                {
+                    enemy.Move(validMove);
+                    map.UpdateMap();
+                    map.UpdateVision();
+                    return Movement.Down;
+                }
+            }
+
+
+            return Movement.No_movement;
         }
     }
 }

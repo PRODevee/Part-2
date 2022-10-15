@@ -10,20 +10,21 @@ namespace RogueLike_2._0
     public class Map
     {
         private Tile[,] map;
+        private string[,] stringMap;
         private Hero hero;
         private Enemy[] enemy;
+
         private int width;
         private int height;
-        private Random ran;
-        private int enemies;
 
+        private Random ran;
+
+        private int enemies;
+        private int items;
+        private Item[] item;
+        private Gold gold;
 
         private Tile tile;
-        private SwampCreature sCreature;
-
-        private GameEngine gameEngine;
-
-        private Character character;
         //Getter and Accesssors of Map
         public int Width
         {
@@ -51,10 +52,9 @@ namespace RogueLike_2._0
         public Hero Hero { get { return hero; } }
 
         //Map Constructor
-        public Map(int minWidth, int maxWidth, int minHeight, int maxHeight, int enemies)
-        {
-            ran = new Random();
-
+        public Map(int minWidth, int maxWidth, int minHeight, 
+            int maxHeight, int enemies, int items) 
+        { 
             width = ran.Next(minWidth, maxWidth);
             height = ran.Next(minHeight, maxHeight);
 
@@ -62,7 +62,9 @@ namespace RogueLike_2._0
             IntialiseMap();
 
             enemy = new Enemy[enemies];
+            item = new Item[items];
 
+            this.items = items;
             this.enemies = enemies;
 
             hero = (Hero)Create(TileType.Hero);
@@ -92,6 +94,7 @@ namespace RogueLike_2._0
             foreach (Enemy enemy in enemy)
             {
                 map[enemy.X, enemy.Y] = enemy;
+
             }
             //Place hero last, so it is not overwritten by any other tiles            
             map[hero.X, hero.Y] = hero;
@@ -126,34 +129,52 @@ namespace RogueLike_2._0
                 {
                     if (tile is EmptyTile)
                     {
-                        s = "*";
+                        stringMap[x, y] = "*";
+                        s = stringMap[x, y];
                     }
                     else if (tile is Obstacle)
                     {
-                        s = "X";
+                        stringMap[x, y] = "X";
+                        s = stringMap[x, y];
                     }
                     else if (tile is Enemy)
                     {
                         Enemy enemy = (Enemy)tile;
                         if (enemy.IsDead)
                         {
-                            s += "/";
+                            stringMap[x, y] = "/";
+                            s = stringMap[x, y];
                         }
                         else
                         {
                             if (enemy is SwampCreature)
                             {
-                                s += "S";
+                                stringMap[x, y] = "S";
+                                s = stringMap[x, y];
+                            }
+                            else if (enemy is Mage)
+                            {                     
+                                stringMap[x, y] = "M";
+                                s = stringMap[x, y];
                             }
                         }
                     }
                     else if (tile is Hero)
+                    {                       
+                        stringMap[x, y] = "H";
+                        s = stringMap[x, y];
+                    }
+                    else if (tile is Item)
                     {
-                        s += "H";
+                        if (item is Gold)
+                        {                          
+                            stringMap[x, y] = "G";
+                            s = stringMap[x, y];
+                        }
                     }
                 }
             }
-            return "";
+            return s;
         }
         private Tile Create(TileType objtype)
         {//Creates the characters coordinates 
@@ -173,14 +194,54 @@ namespace RogueLike_2._0
             }
             else if (objtype == TileType.Enemy)
             {
-                int enemyType = ran.Next(0);
+                int enemyType = ran.Next(0, 1);
                 if (enemyType == 0)
                 {
                     map[tileX, tileY] = new SwampCreature(tileX, tileY);
                 }
+                else if(enemyType == 1)
+                {
+                    map[tileX, tileY] = new Mage(tileX, tileY); 
+                }
+            } 
+            else if (objtype == TileType.Gold)
+            {
+                for (int i = 0; i <= gold.AmntOfGold; i++)
+                {
+                    map[tileX, tileY] = new Gold(tileX, tileY);
+                }
+ 
             }
 
             return map[tileX, tileY];
+        }
+
+        public void PickupItem()
+        {
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (stringMap[x, y] == "G")
+                    {
+                        stringMap[x, y] = "H";
+                    }
+                }
+            }
+        }
+
+        public Item GetItemAtPosition(int x, int y)
+        {
+            for (int i = 0; i <= items; i++)
+            {
+                if(gold.X == x && gold.Y == y)
+                {
+                    return gold;
+                    // item[items] == Item[]; how to make null in array
+                }
+            }
+            return null;
         }
     }
 }
